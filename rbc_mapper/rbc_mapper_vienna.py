@@ -6,6 +6,7 @@ import scipy.misc
 import sys
 import pdb
 import copy 
+import yaml
 
 from models import *
 from data import *
@@ -103,6 +104,13 @@ def main(options):
 
     #get library size correction
     [LSres,LSsus] = lib_size_factors(data)
+    
+
+    ## Anza Testing
+    ##[LSres,LSsus] = lib_size_factors(data)
+
+
+
     data['counts_both'] = LSres*data['counts_res']+LSsus*data['counts_sus']
     #print(LSres*data['counts_res']) #printed for better understanding (Norman, Anza Jan 2020)
     #print(LSsus*data['counts_sus'])
@@ -129,9 +137,13 @@ def main(options):
         _data = copy.deepcopy(data)
         Ic = (data['chrom']==c)
         filter_data(_data,Ic)
-        if options["chrom_size"] is None:
+        print(options["chrom_size"])
+        # changed none to 0 in the below expression
+        if options["chrom_size"] is 0:
             recombination_rate = 2.0/(data['pos'].max()-data['pos'].min())
+            print('anza')
         else:
+            print('moeed')
             recombination_rate = 2.0/options["chrom_size"]
         if 0:
             print ("recombination rate factor on")
@@ -152,11 +164,17 @@ def main(options):
 
 if __name__ == '__main__':
     #parse command line
-    options_parsed   = parse_options(sys.argv)
-    options = vars(options_parsed)
+    #options_parsed   = parse_options(sys.argv)
+    #options = vars(options_parsed)
     #print (type(options))
     #print (options['min_qual'])
-    print ("Note: using options: %s" % (str(options)))
+    with open('config.yaml') as file:
+        options = yaml.load(file)
+        print(options)
+
+    #print ("Note: using options: %s" % (str(options)))
+    print(type(options['window_size']))
+    #print(type(options['window_size']))
     main(options)
     
 

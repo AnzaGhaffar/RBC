@@ -21,7 +21,7 @@ def calc_p_value_fair(data,index_res=0,p=0.5,field='counts_both'):
   a particular observation"""
   d = data[field]
   RV = SP.zeros(d.shape[0])
-  for i in xrange(d.shape[0]):
+  for i in range(d.shape[0]):
     RV[i]=stats.binom_test(d[i,index_res],d[i].sum(),p=p)
   return RV
 
@@ -72,7 +72,8 @@ class RcombinationMapping(object):
       self.pool_size_res = None
       self.pool_size_sus = None
       self.recombinationRate = None
-      self.eps = 1E-2
+      self.eps = 0.01
+      # changing the value of eps from 1e-2 to 0.01 as it was being treated as str instead of float
       self.pos = None
       pass
 
@@ -243,10 +244,10 @@ class RcombinationMapping(object):
       scalepr = [1.0]
     LL  = SP.zeros([len(epsr),len(scalemr),len(scalepr)])
     LL0 = SP.zeros([len(epsr),len(scalemr),len(scalepr)])
-    for i1 in xrange(len(epsr)):
+    for i1 in range(len(epsr)):
       LL0[i1,:,:] = self._LL0(I,eps=epsr[i1])[0]
-      for i2 in xrange(len(scalemr)):
-        for i3 in xrange(len(scalepr)):
+      for i2 in range(len(scalemr)):
+        for i3 in range(len(scalepr)):
             LL[i1,i2,i3] = self._LL(p,I,eps=epsr[i1],scalem=scalemr[i2],scalep=scalepr[i3])[0]
     #get best parameters and return
     return [LL0.max(),LL.max()]
@@ -326,10 +327,15 @@ class RcombinationMapping(object):
           podd = self._podd(d,**kw_args)
           
       if pool=='res':
+        # conversion of eps to float by Anza
+        eps= float(eps)
+        #print(type(eps))
+        #print(eps)
         mu = 1.0-podd
         v   = 1.0/self.pool_size_res * (1-podd) * podd + eps**2
-
       elif pool=='sus':
+        # conversion of eps to float by Anza
+        eps=float(eps)
         mu = 1.0/3 * (1+podd) #+ eps
         v   = 1.0/3 *  1.0/self.pool_size_sus * (1-podd) * podd + eps**2
 
@@ -420,7 +426,7 @@ def binomial_test(N_res,k_res,N_sus,k_sus,p_res=0.99,p_sus=0.33):
 def eval_binomial(data,index_res=0,fields=['counts_res','counts_sus'],p=[0.5,0.5]):
     #binomail test on position-wide scalee
     L = 0
-    for i in xrange(len(fields)):
+    for i in range(len(fields)):
         field = fields[i]
         L += log_binomial(data[field][:,index_res],data[field].sum(axis=1),p[i])
     return L
@@ -473,6 +479,10 @@ def parse_options(argv):
     optional.add_option('--chrom_size',dest='chrom_size',type='float',help='Chromsome Size if running on a single chromosome', default=None)
     optional.add_option('--window_size',dest='window_size',type='float',help='Analysis window', default=5000E3)
     optional.add_option('--phenoNoise',dest='phenoNoise',type='float',help='Phenotyping noise', default=1E-4)
+    
+    # Addition of LSres and LSsus in the command line arguments
+    #optional.add_option('--pres',dest='pres',type='float',help='anza_testing', default=1E-4)
+    #optional.add_option('--psus',dest='psus',type='float',help='anza_testing_1', default=1E-4)
     
     #optimization flags
     

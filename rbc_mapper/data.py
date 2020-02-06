@@ -235,9 +235,11 @@ def preprocess_data(D,filterN=True,filter_dash=True,enforce_match_major=True,enf
     Iok = SP.ones(D['alleles_res'].shape[0],dtype='bool')
     if chrom is not None:
         Iok = Iok & (D['chrom']==chrom)
-    if start is not None:
+    # changed the value to 0 from None by Anza
+    if start is not 0:
         Iok = Iok & (D['pos']>=start)
-    if stop is not None:
+    # changed the value to 0 from None by Anza
+    if stop is not 0:
         Iok = Iok & (D['pos']<=stop)
 
     print ("Note: restricting analysis to chrom: %s, start: %s, stop: %s" % (chrom,start,stop))
@@ -277,8 +279,9 @@ def preprocess_data(D,filterN=True,filter_dash=True,enforce_match_major=True,enf
         #lf = str.split(string.upper(filter_flags),',')
         lf = str.split(filter_flags.upper(),',')
         ifilter = SP.array([SP.array([e in lf for e in _filter]).all() for _filter in D['filter']])
+        print(Iok)
+        print(ifilter)
         Iok = Iok & ifilter
-    
     #coverage filter
     #res
     Cres = D['counts_res'].sum(axis=1)
